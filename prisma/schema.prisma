@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Shop {
+  id        Int       @id @default(autoincrement())
+  name      String
+  code      String?
+  address   String?
+  city      String?
+  phone     String?
+  status    String    @default("opening")
+  openedAt  DateTime?
+  closedAt  DateTime?
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  inspections Inspection[]
+  tasks       Task[]
+  tickets     Ticket[]
+
+  @@map("shops")
+}
+
+model Inspection {
+  id          Int       @id @default(autoincrement())
+  shopId      Int
+  type        String    @default("routine")
+  inspectorName String?
+  scheduledAt DateTime
+  completedAt DateTime?
+  score       Int?
+  status      String    @default("scheduled")
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  shop Shop @relation(fields: [shopId], references: [id])
+
+  @@map("inspections")
+}
+
+model Task {
+  id          Int       @id @default(autoincrement())
+  shopId      Int
+  title       String
+  description String?
+  dueDate     DateTime?
+  status      String    @default("open")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  shop Shop @relation(fields: [shopId], references: [id])
+
+  @@map("tasks")
+}
+
+model Ticket {
+  id        Int       @id @default(autoincrement())
+  shopId    Int
+  title     String
+  body      String
+  response  String?
+  priority  String    @default("medium")
+  category  String?
+  status    String    @default("open")
+  closedAt  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  shop Shop @relation(fields: [shopId], references: [id])
+
+  @@map("tickets")
+}
